@@ -1,20 +1,28 @@
-import cv2
-import sys
+from flask import Flask, render_template
+from flask_socketio import SocketIO
+from photo import capturar_fotos_automaticas
 
-s = 0
-if len(sys.argv) > 1:
-    s = sys.argv[1]
+app = Flask(__name__)
+socketio = SocketIO(app)
 
-source = cv2.VideoCapture(s)
+capturando = False
 
-win_name = 'Camera Preview'
-cv2.namedWindow(win_name, cv2.WINDOW_NORMAL)
+@app.route('/')
+def index():
+    return render_template("index.html")
 
-while cv2.waitKey(1) != 27: # Escape
-    has_frame, frame = source.read()
-    if not has_frame:
-        break
-    cv2.imshow(win_name, frame)
+@socketio.on("iniciar_captura")
+def iniciar_captura(data):
+    global capturando
+    if not capturando:
+        tipo_pan = data.get("tipo_pan", "barra")
+        interval = data.get("interval", 5)
+        socketio.start_background_task(target=capturar_fotos_automaticas, socketio=socketio, interval=interval)
 
-source.release()
-cv2.destroyWindow(win_name)
+@socketio.on("detener_captura")
+def detener_captura():
+    global capturando
+    capturando = False
+
+if __name__ == "__main__":
+    socketio.run(app, debug=True, port=5002)
