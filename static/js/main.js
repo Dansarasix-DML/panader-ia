@@ -1,7 +1,6 @@
 const url = "http://127.0.0.1:5002"
 
 const socket = io(url);
-
 const start_server = async() => {
     const pan = document.getElementById("pan").value;
     const frequencia = document.getElementById("time").value;
@@ -12,3 +11,6 @@ const start_server = async() => {
 
     console.log("He llegado bien")
 }
+
+socket.emit("iniciar_captura",{interval:6,tipo_pan:'Pan'})
+dom = document.getElementById("submit").click();
