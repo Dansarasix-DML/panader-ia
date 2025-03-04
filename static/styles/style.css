@@ -1,0 +1,60 @@
+body{
+    background-color: antiquewhite;
+    margin: 0%;
+    text-align: center;
+}
+
+header{
+    width: 100%;
+    padding: 1.5%;
+    background-color: rgb(98, 145, 214);
+    text-align: center;
+}
+
+#starter{
+    width: 70%;
+    margin: 0% auto;
+}
+
+form{
+    /* display: none; */
+    width: 80%;
+    padding: 5% 0%;
+    margin: 5% auto;
+    background-color: rgb(168, 201, 250);
+    text-align: center;
+    border-radius: 5px;
+    border: 5px solid black;
+}
+
+#time{
+    margin: 3% auto;
+}
+
+#check{
+    transform: scale(2,2) translate(50%,-10%);
+    margin-bottom: 5%;
+}
+
+#submit{
+    background-color: lightgreen;
+    width: 10%;
+    border-radius: 5px;
+    transition: 1s;
+}
+
+#submit:hover{
+    transform: scale(1.1,1.1);
+    background-color: green;
+    color: white;
+    border-width: 5px;
+}
+
+#starter .graph{
+    display: none;
+}
+
+#in-process{
+    display: inline-block;
+    display: none;
+}

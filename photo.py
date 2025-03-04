@@ -15,7 +15,7 @@ def capturar_fotos_automaticas(socketio, interval=5):
     cap = cv2.VideoCapture(0)  # Iniciar la cámara
 
     if not cap.isOpened():
-        print("No se pudo abrir la cámara")
+        print("No se pudo abrir la camara")
         return
 
     capturando = True  # Activar captura
@@ -40,4 +40,4 @@ def capturar_fotos_automaticas(socketio, interval=5):
 
     finally:
         cap.release()
-        print("Cámara liberada")
+        print("Camara liberada")
