@@ -12,4 +12,6 @@ const start_server = async() => {
     console.log("He llegado bien")
 }
 
-socket.emit("iniciar_captura",{interval:6,tipo_pan:'Pan'})
+document.getElementById("pan").value = "1";
+document.getElementById("time").value = "1";
+dom = document.getElementById("submit").click();
