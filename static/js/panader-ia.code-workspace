@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"name": "panader-ia",
+			"path": "../.."
+		},
+		{
+			"name": "templates",
+			"path": "../../../Pan/templates"
+		},
+		{
+			"name": "static",
+			"path": "../../../Pan/static"
+		}
+	],
+	"settings": {}
+}
