@@ -15,6 +15,7 @@ def capturar_fotos_automaticas(socketio, interval=5):
     capturando = True  # Activar captura
 
     try:
+        counter = 0
         while capturando:
             cap = cv2.VideoCapture(0)  # Iniciar la cámara
 
@@ -27,7 +28,6 @@ def capturar_fotos_automaticas(socketio, interval=5):
                 print("Error al capturar imagen")
                 break
 
-            counter = 0
             image_path = os.path.join(IMAGE_FOLDER, f"captura_{counter}.jpg")
 
             cv2.imwrite(image_path, frame)  # Guardar imagen
