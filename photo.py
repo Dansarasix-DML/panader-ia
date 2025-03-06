@@ -5,7 +5,7 @@ from datetime import datetime
 from flask_socketio import emit
 
 # Carpeta donde se guardarán las imágenes
-IMAGE_FOLDER = "/media/raspberry/D072-7D9A/capturas"
+IMAGE_FOLDER = "/home/raspberry/media/raspberry/D072-7D9A/capturas"
 if not os.path.exists(IMAGE_FOLDER):
     os.makedirs(IMAGE_FOLDER)
 
