@@ -1,6 +1,7 @@
 import cv2
 import os
 import time
+from datetime import datetime
 from flask_socketio import emit
 
 # Carpeta donde se guardarán las imágenes
@@ -27,9 +28,11 @@ def capturar_fotos_automaticas(socketio, interval=5):
             if not ret:
                 print("Error al capturar imagen")
                 break
+            
+            timestamp = datetime.now()
+            image_path = os.path.join(IMAGE_FOLDER, f"captura_{timestamp.strftime("%Y-%m-%d %H:%M:%S")}.jpg")
 
-            image_path = os.path.join(IMAGE_FOLDER, f"captura_{counter}.jpg")
-
+            frame = frame[::-1]  # Invertir imagen
             cv2.imwrite(image_path, frame)  # Guardar imagen
 
             with open(image_path, "rb") as img_file:
