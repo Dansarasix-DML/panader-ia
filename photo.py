@@ -29,8 +29,8 @@ def capturar_fotos_automaticas(socketio, interval=5):
                 print("Error al capturar imagen")
                 break
             
-            timestamp = datetime.now()
-            image_path = os.path.join(IMAGE_FOLDER, f"captura_{timestamp.strftime('%Y-%m-%d %H:%M:%S')}.jpg")
+            timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            image_path = os.path.join(IMAGE_FOLDER, f"captura_{timestamp}.jpg")
 
             frame = frame[::-1]  # Invertir imagen
             cv2.imwrite(image_path, frame)  # Guardar imagen
