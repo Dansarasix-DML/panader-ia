@@ -42,7 +42,7 @@ def capturar_fotos_automaticas(socketio, interval=5):
             cap.release()
             print("Camara liberada")
             counter = counter + 1
-            time.sleep(int(interval) * 10)  # Esperar 2 segundos antes de la siguiente captura
+            time.sleep(int(interval) * 20)  # Esperar 20 * num segundos antes de la siguiente captura
 
     finally:
         capturando = False
