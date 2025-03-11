@@ -12,7 +12,7 @@ socketio = SocketIO(app)
 capturando = False
 
 @app.route('/')
-@cross_origin(origins="http://192.168.127.138:5002/")
+@cross_origin(origins="192.168.127.138:5002/")
 def index():
     return render_template("index.html")
 
