@@ -12,6 +12,7 @@ capturando = False  # Variable de control
 
 def capturar_fotos_automaticas(socketio, interval=5):
     global capturando
+    print("Global" , capturando)
     cap = cv2.VideoCapture(0)  # Iniciar la cámara
 
     if not cap.isOpened():
