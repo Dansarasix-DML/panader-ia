@@ -1,4 +1,4 @@
-const url = "http://127.0.0.1:5002"
+const url = "http://192.168.127.138:5002/"
 
 const socket = io(url);
 const start_server = async() => {
