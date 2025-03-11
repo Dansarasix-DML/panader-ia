@@ -1,7 +1,6 @@
 from flask import Flask, render_template
 from flask_socketio import SocketIO
 from photo import capturar_fotos_automaticas
-import time
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -28,8 +27,6 @@ def detener_captura():
     capturando = False
 
 with app.app_context():
-    time.sleep(30)
-    print('2segundos')
     iniciar_captura({"tipo_pan": "HOLA", "interval": 5})
 
 if __name__ == "__main__":
