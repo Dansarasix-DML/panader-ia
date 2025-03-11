@@ -22,7 +22,6 @@ def capturar_fotos_automaticas(socketio, interval=5):
             puerto = i
             break
     print("Puerto", puerto)
-    cap = cv2.VideoCapture(puerto)
 
     cap = cv2.VideoCapture(puerto)  # Iniciar la cámara
     if not cap.isOpened():
