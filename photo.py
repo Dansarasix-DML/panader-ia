@@ -20,6 +20,7 @@ def capturar_fotos_automaticas(socketio, interval=5):
         if cap.isOpened():
             print(f"Camara detectada: {i}")
             puerto = i
+            cap.release()
             break
     print("Puerto", puerto)
 
