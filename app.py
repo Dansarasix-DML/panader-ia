@@ -28,7 +28,7 @@ def detener_captura():
     capturando = False
 
 with app.app_context():
-    time.sleep(2)
+    time.sleep(10)
     print('2segundos')
     iniciar_captura({"tipo_pan": "HOLA", "interval": 5})
 
