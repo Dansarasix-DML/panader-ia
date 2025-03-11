@@ -24,12 +24,8 @@ def detener_captura():
     global capturando
     capturando = False
 
-@socketio.on("connect")
-def handle_connect():
-    global capturando
-    if not capturando:  # Evita múltiples inicios
-        capturando = True
-        socketio.start_background_task(target=capturar_fotos_automaticas, socketio=socketio, interval=5)
-
+with app.app_context():
+    iniciar_captura({"tipo_pan": "barra", "interval": 5})
+    
 if __name__ == "__main__":
     socketio.run(app, debug=True, port=5002)
