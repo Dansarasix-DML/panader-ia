@@ -4,7 +4,28 @@ Usar como referencia o para aportar ideas.
 
 Se guardan las imágenes en un fichero de entrada y se
 procesan en un fichero de sálida para luego hacer los cálculos.
+
+Librerías que hay que instalar:
+pip install rembg
+pip install onnxruntime
 """
+
+import os
+from rembg import remove
+from PIL import Image
+import io
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+import re
+from datetime import datetime
+
+# from zipfile import ZipFile
+from urllib.request import urlretrieve
+
+from IPython.display import YouTubeVideo, display, Image
+
+%matplotlib inline
 
 def create_ouput_data(input_folder, output_folder):
   # Comprobamos que los ficheros existen
