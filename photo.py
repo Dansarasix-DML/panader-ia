@@ -18,6 +18,7 @@ def capturar_fotos_automaticas(socketio, interval=5):
     try:
         counter = 0
         while capturando:
+            print(f"Capturando imagen {counter}")
             cap = cv2.VideoCapture(0)  # Iniciar la cámara
 
             if not cap.isOpened():
@@ -42,7 +43,8 @@ def capturar_fotos_automaticas(socketio, interval=5):
             cap.release()
             print("Camara liberada")
             counter = counter + 1
-            time.sleep(int(interval) * 20)  # Esperar 20 * num segundos antes de la siguiente captura
+            time.sleep(int(interval))  # se pone el tiempo entre fotos en la web
 
     finally:
         capturando = False
+print("Captura finalizada")

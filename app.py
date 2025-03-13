@@ -29,4 +29,4 @@ def detener_captura():
     capturando = False
 
 if __name__ == "__main__":
-    socketio.run(app, host='192.168.127.138', debug=True, port=5002)
+    socketio.run(app, host='192.168.127.138', debug=True, port=5002, allow_unsafe_werkzeug=True)
