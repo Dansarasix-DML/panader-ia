@@ -1,50 +1,49 @@
 import cv2
 import os
 import time
-from datetime import datetime
 from flask_socketio import emit
 
-# Carpeta donde se guardarán las imágenes
-IMAGE_FOLDER = "/home/raspberry/media/raspberry/D072-7D9A/capturas"
-if not os.path.exists(IMAGE_FOLDER):
-    os.makedirs(IMAGE_FOLDER)
+class Capturadora:
 
-capturando = False  # Variable de control
+    def __init__(self,capturando=False,interval=5,tipo_pan=None):
+        self.capturando = capturando
+        self.interval = interval
+        self.tipo_pan = tipo_pan
+        self.img_now = None
+        self.imgs = []
+        self.image_folder = "/home/raspberry/media/raspberry/D072-7D9A/capturas"
 
-def capturar_fotos_automaticas(socketio, interval=5):
-    global capturando
-    capturando = True  # Activar captura
+    def capturar_fotos_automaticas(self,socketio):
+        if not os.path.exists(self.image_folder):
+            os.makedirs(self.image_folder)
+        
+        cap = cv2.VideoCapture(0)  # Iniciar la cámara
 
-    try:
-        counter = 0
-        while capturando:
-            print(f"Capturando imagen {counter}")
-            cap = cv2.VideoCapture(0)  # Iniciar la cámara
+        if not cap.isOpened():
+            print("No se pudo abrir la cámara")
+            return
+        
+        try:
+            while self.capturando:
+                ret, frame = cap.read()
+                if not ret:
+                    print("Error al capturar imagen")
+                    break
 
-            if not cap.isOpened():
-                print("No se pudo abrir la camara")
-                return
-            
-            ret, frame = cap.read()
-            if not ret:
-                print("Error al capturar imagen")
-                break
-            
-            timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            image_path = os.path.join(IMAGE_FOLDER, f"captura_{timestamp}.jpg")
+                timestamp = int(time.time())
+                image_path = os.path.join(self.image_folder, f"captura_{timestamp}.png")
 
-            frame = frame[::-1]  # Invertir imagen
-            cv2.imwrite(image_path, frame)  # Guardar imagen
-
-            with open(image_path, "rb") as img_file:
-                img_bytes = img_file.read()
-                socketio.emit("nueva_imagen", img_bytes)  # Enviar imagen al frontend
- 
+                cv2.imwrite(image_path, frame)  # Guardar imagen
+                with open(image_path, "rb") as img_file:
+                    img_bytes = img_file.read()
+                    self.img_now = img_bytes
+                    self.imgs.append(img_bytes)
+                    socketio.emit("nueva_imagen", img_bytes)  # Enviar imagen al frontend
+                    socketio.emit("nuevas_imagenes", self.imgs)
+                time.sleep(int(self.interval) * 60)  # Esperar 2 segundos antes de la siguiente captura
+            if not self.capturando:
+                print("Camara detenida")
+                cap.release()
+        finally:
             cap.release()
-            print("Camara liberada")
-            counter = counter + 1
-            time.sleep(int(interval))  # se pone el tiempo entre fotos en la web
-
-    finally:
-        capturando = False
-print("Captura finalizada")
+            print("Cámara liberada")

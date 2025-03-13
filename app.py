@@ -1,6 +1,6 @@
 from flask import Flask, render_template
 from flask_socketio import SocketIO
-from photo import capturar_fotos_automaticas
+from photo import Capturadora
 from flask_cors import CORS
 import eventlet
 import eventlet.wsgi
@@ -9,8 +9,7 @@ app = Flask(__name__)
 socketio = SocketIO(app, async_mode='eventlet')
 
 CORS(app, resources={r"/*": {"origins": "http://192.168.127.138:5002"}})
-
-capturando = False
+camara = Capturadora()
 
 @app.route('/')
 
@@ -19,16 +18,39 @@ def index():
 
 @socketio.on("iniciar_captura")
 def iniciar_captura(data):
-    global capturando
-    if not capturando:
-        tipo_pan = data.get("tipo_pan", "barra")
-        interval = data.get("interval", 5)
-        socketio.start_background_task(target=capturar_fotos_automaticas, socketio=socketio, interval=interval)
+
+    if not camara.capturando:
+        camara.capturando = True
+        camara.interval = data.get("interval", 5)
+        camara.tipo_pan = data.get("tipo_pan", "barra")
+        socketio.start_background_task(target=camara.capturar_fotos_automaticas, socketio=socketio)
 
 @socketio.on("detener_captura")
 def detener_captura():
-    global capturando
-    capturando = False
+    camara.capturando = False
+    camara.imgs = []
+    camara.img_now = None
+    camara.interval = 5
+    camara.tipo_pan = None
+    print(camara.capturando)
+
+@socketio.on("heartbeat")
+def heartbeat():
+    print(f"Informacion del objeto: camara:{camara.capturando}\nintervalo:{camara.interval}\npan:{camara.tipo_pan}")
+    if(camara.capturando):
+        socketio.emit("capturando", True)
+    else:
+        socketio.emit("capturando", False)
+
+@socketio.on("get_image_now")
+def image_now():
+    if camara.capturando:
+        socketio.emit("nueva_imagen", camara.img_now)
+
+@socketio.on("get_images")
+def get_images():
+    if camara.capturando:
+        socketio.emit("nuevas_imagenes", camara.imgs)
 
 if __name__ == "__main__":
     eventlet.wsgi.server(eventlet.listen(('192.168.127.138', 5002)), app)
