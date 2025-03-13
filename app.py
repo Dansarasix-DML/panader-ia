@@ -2,9 +2,11 @@ from flask import Flask, render_template
 from flask_socketio import SocketIO
 from photo import capturar_fotos_automaticas
 from flask_cors import CORS
+import eventlet
+import eventlet.wsgi
 
 app = Flask(__name__)
-socketio = SocketIO(app)
+socketio = SocketIO(app, async_mode='eventlet')
 
 CORS(app, resources={r"/*": {"origins": "http://192.168.127.138:5002"}})
 
@@ -29,4 +31,5 @@ def detener_captura():
     capturando = False
 
 if __name__ == "__main__":
-    socketio.run(app, host='192.168.127.138', debug=True, port=5002, allow_unsafe_werkzeug=True)
+    eventlet.wsgi.server(eventlet.listen(('192.168.127.138', 5002)), app)
+    #socketio.run(app, host='192.168.127.138', debug=True, port=5002, allow_unsafe_werkzeug=True)
