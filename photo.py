@@ -1,7 +1,6 @@
 import cv2
 import os
 import time
-from flask_socketio import emit
 
 class Capturadora:
 
@@ -12,8 +11,9 @@ class Capturadora:
         self.img_now = None
         self.imgs = []
         self.image_folder = "/home/raspberry/media/raspberry/D072-7D9A/capturas"
+        
 
-    def capturar_fotos_automaticas(self,socketio):
+    def capturar_fotos_automaticas(self):
         if not os.path.exists(self.image_folder):
             os.makedirs(self.image_folder)
         
@@ -38,8 +38,6 @@ class Capturadora:
                     img_bytes = img_file.read()
                     self.img_now = img_bytes
                     self.imgs.append(img_bytes)
-                    socketio.emit("nueva_imagen", img_bytes)  # Enviar imagen al frontend
-                    socketio.emit("nuevas_imagenes", self.imgs)
                 time.sleep(int(self.interval) * 60)  # Esperar 2 segundos antes de la siguiente captura
             if not self.capturando:
                 print("Camara detenida")

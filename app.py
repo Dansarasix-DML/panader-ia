@@ -4,6 +4,7 @@ from photo import Capturadora
 from flask_cors import CORS
 import eventlet
 import eventlet.wsgi
+import threading
 
 app = Flask(__name__)
 socketio = SocketIO(app, async_mode='eventlet')
@@ -23,7 +24,7 @@ def iniciar_captura(data):
         camara.capturando = True
         camara.interval = data.get("interval", 5)
         camara.tipo_pan = data.get("tipo_pan", "barra")
-        socketio.start_background_task(target=camara.capturar_fotos_automaticas, socketio=socketio)
+        threading.Thread(target=camara.capturar_fotos_automaticas).start()
 
 @socketio.on("detener_captura")
 def detener_captura():
@@ -32,13 +33,13 @@ def detener_captura():
     camara.img_now = None
     camara.interval = 5
     camara.tipo_pan = None
-    print(camara.capturando)
 
 @socketio.on("heartbeat")
 def heartbeat():
     print(f"Informacion del objeto: camara:{camara.capturando}\nintervalo:{camara.interval}\npan:{camara.tipo_pan}")
     if(camara.capturando):
         socketio.emit("capturando", True)
+        socketio.emit("intervalo", camara.interval)
     else:
         socketio.emit("capturando", False)
 

@@ -4,6 +4,7 @@ const socket = io(url);
 
 const imagenes = []
 
+let interval = undefined;
 
 let formulario = document.getElementById("form");
 let in_process = document.getElementById("in-process");
@@ -19,12 +20,23 @@ spinner_text.textContent = "";
 
 socket.emit("heartbeat")
 
-socket.on('capturando', (data) => {
+socket.on('capturando', async (data) => {
     console.log(data)
     if(data)
     {
         formulario.style.display = "none";
         in_process.style.display = "inline-block";
+        
+        if(typeof interval == "undefined")
+        {
+            socket.on("intervalo",(data)=>{
+                interval = setInterval(()=>{
+                    socket.emit("get_image_now");
+                    socket.emit("get_images");
+                },data*60000);
+            });
+            
+        }
     }
     else
     {
@@ -91,7 +103,7 @@ socket.on('nuevas_imagenes', (data) => {
         div.className = i==0 ? "carousel-item active" : "carousel-item";
         let img = document.createElement("img");
         img.className = "d-block w-100";
-        img.alt = "Imagen de pan "+(i+2);
+        img.alt = "Imagen de pan "+(i+1);
         img.id = "pan-"+i;
         img.src = imageUrl;
         div.appendChild(img);
@@ -121,7 +133,8 @@ const start_server = async () => {
 
     if(info_pan.textContent === "" && info_tiempo.textContent === "")
     {
-        socket.emit("iniciar_captura", { interval: frequencia, tipo_pan: pan })
+        
+        spinner.style.display = "inline-block";
         formulario.style.display = "none";
         in_process.style.display = "inline-block";
         pan_now.style.display = "none";
@@ -129,11 +142,27 @@ const start_server = async () => {
         texto_pan.style.display = "none";
         boton_descargar.style.display = "none";
         boton_apagar.style.display = "none";
-        spinner.style.display = "inline-block";
-        spinner_text.textContent = "Encendiendo la cámara";
-        iniciarGrafica();
+        spinner_text.textContent = "Encendiendo cámara";
+
+        socket.emit("iniciar_captura", { interval: frequencia, tipo_pan: pan })    
+    
+        await new Promise((resolve) => {setTimeout(() => resolve(), 5000);})
+        spinner_text.textContent = "Cargando datos";
+        await new Promise((resolve) => {setTimeout(() => resolve(), 5000);})
+        socket.emit("get_image_now");
+        socket.emit("get_images");
+        interval = setInterval(()=>{
+            socket.emit("get_image_now");
+            socket.emit("get_images");
+        },frequencia*60000);
+
     }
 }
+
+document.getElementById("submit").addEventListener("click",function(event){
+    event.preventDefault();
+    start_server();
+})
 
 const stop_server = async () => {
     socket.emit("detener_captura")
@@ -214,4 +243,3 @@ const iniciarGrafica = () => {
         }
     });
 };
-
