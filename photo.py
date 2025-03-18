@@ -1,6 +1,7 @@
 import cv2
 import os
 import time
+from datetime import datetime
 
 class Capturadora:
 
@@ -29,9 +30,8 @@ class Capturadora:
                 if not ret:
                     print("Error al capturar imagen")
                     break
-
-                timestamp = int(time.time())
-                image_path = os.path.join(self.image_folder, f"captura_{timestamp}.png")
+                fecha = datetime.now().strftime("%Y-%m-%d %H_%M_%S")
+                image_path = os.path.join(self.image_folder, f"captura_{fecha}.png")
 
                 cv2.imwrite(image_path, frame)  # Guardar imagen
                 with open(image_path, "rb") as img_file:
