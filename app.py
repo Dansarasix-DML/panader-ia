@@ -5,11 +5,22 @@ from flask_cors import CORS
 import eventlet
 import eventlet.wsgi
 import threading
+import logging
+import os
+
+ADDRESS = "192.168.127.138"
+
+logging.basicConfig(
+    filename="server.log",  # Nombre del archivo de log
+    level=logging.DEBUG,  # Nivel de logging (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+    format="%(asctime)s - %(levelname)s - %(message)s",  # Formato del mensaje
+    datefmt="%Y-%m-%d %H:%M:%S",  # Formato de la fecha
+)
 
 app = Flask(__name__)
 socketio = SocketIO(app, async_mode='eventlet')
 
-CORS(app, resources={r"/*": {"origins": "http://192.168.127.138:5002"}})
+CORS(app, resources={r"/*": {"origins": f"http://{ADDRESS}:5002"}})
 camara = Capturadora()
 
 @app.route('/')
@@ -24,10 +35,12 @@ def iniciar_captura(data):
         camara.capturando = True
         camara.interval = data.get("interval", 5)
         camara.tipo_pan = data.get("tipo_pan", "barra")
+        logging.info(f"Captura iniciada con intervalo de {camara.interval} minutos y tipo de pan {camara.tipo_pan}")
         threading.Thread(target=camara.capturar_fotos_automaticas).start()
 
 @socketio.on("detener_captura")
 def detener_captura():
+    logging.info(f"Captura detenida, se van a resetear los valores a nulos, hasta que la camara no se apague se recomienda no iniciar una nueva captura")
     camara.capturando = False
     camara.imgs = []
     camara.img_now = None
@@ -36,7 +49,7 @@ def detener_captura():
 
 @socketio.on("heartbeat")
 def heartbeat():
-    print(f"Informacion del objeto: camara:{camara.capturando}\nintervalo:{camara.interval}\npan:{camara.tipo_pan}")
+    logging.info(f"Recarga de la web detectada")
     if(camara.capturando):
         socketio.emit("capturando", True)
         socketio.emit("intervalo", camara.interval)
@@ -46,13 +59,18 @@ def heartbeat():
 @socketio.on("get_image_now")
 def image_now():
     if camara.capturando:
+        logging.info(f"Imagen actual solicitada")
         socketio.emit("nueva_imagen", camara.img_now)
 
 @socketio.on("get_images")
 def get_images():
     if camara.capturando:
+        logging.info(f"Lista de imagenes solicitadas")
         socketio.emit("nuevas_imagenes", camara.imgs)
 
 if __name__ == "__main__":
-    eventlet.wsgi.server(eventlet.listen(('192.168.127.138', 5002)), app)
+    logging.info(f"Servidor iniciado con la direccion IP {ADDRESS}")
+    logging.info(f"Puerto 5002")
+    logging.info(f"Los logs se registran en el fichero {os.getcwd()}/server.log")
+    eventlet.wsgi.server(eventlet.listen((ADDRESS, 5002)), app)
     #socketio.run(app, host='192.168.127.138', debug=True, port=5002, allow_unsafe_werkzeug=True)
