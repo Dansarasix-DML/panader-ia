@@ -1,4 +1,4 @@
-const url = "http://192.168.127.138:5002/"
+const url = "http://192.168.1.36:5002/"
 
 const socket = io(url);
 
@@ -9,9 +9,11 @@ let interval = undefined;
 let formulario = document.getElementById("form");
 let in_process = document.getElementById("in-process");
 let pan_now = document.getElementById("pan-now");
-let carousel = document.getElementById("carouselExampleIndicators");
-let texto_pan = document.getElementById("texto-pan");
-let boton_descargar = document.getElementById("descarga");
+let primer_pan_div = document.getElementById("primer-pan");
+let segundo_pan_div = document.getElementById("ultimo-pan");
+// let carousel = document.getElementById("carouselExampleIndicators");
+// let texto_pan = document.getElementById("texto-pan");
+// let boton_descargar = document.getElementById("descarga");
 let boton_apagar = document.getElementById("boton-apagar");
 let spinner = document.getElementById("spinner");
 let spinner_text = document.getElementById("spinner-text");
@@ -56,9 +58,8 @@ socket.on('nueva_imagen', async (data) => {
         spinner.style.display = "inline-block";
         spinner_text.textContent = "Cargando imagen";
         pan_now.style.display = "none";
-        carousel.style.display = "none";
-        texto_pan.style.display = "none";
-        boton_descargar.style.display = "none";
+        primer_pan_div.style.display = "none";
+        segundo_pan_div.style.display = "none";
         boton_apagar.style.display = "none";
 
         // Convertir la data en un Blob (simulando una operación asincrónica)
@@ -74,9 +75,8 @@ socket.on('nueva_imagen', async (data) => {
 
         // Mostrar los elementos una vez que la imagen está lista
         pan_now.style.display = "inline-block";
-        carousel.style.display = "block";
-        texto_pan.style.display = "block";
-        boton_descargar.style.display = "inline-block";
+        primer_pan_div.style.display = "inline-block";
+        segundo_pan_div.style.display = "inline-block";
         boton_apagar.style.display = "inline-block";
         spinner.style.display = "none";
         spinner_text.textContent = "";
@@ -92,23 +92,17 @@ socket.on('nueva_imagen', async (data) => {
 socket.emit("get_images")
 
 socket.on('nuevas_imagenes', (data) => {
-    const carousel = document.getElementById("carousel");
-    carousel.querySelectorAll("*").forEach(n => n.remove());
-    for (let i=0; i<data.length; i++)
-    {
-        let blob = new Blob([data[i]], { type: "image/png" });
-        // Crear una URL para el Blob
-        let imageUrl = URL.createObjectURL(blob);
-        let div = document.createElement("div");
-        div.className = i==0 ? "carousel-item active" : "carousel-item";
-        let img = document.createElement("img");
-        img.className = "d-block w-100";
-        img.alt = "Imagen de pan "+(i+1);
-        img.id = "pan-"+i;
-        img.src = imageUrl;
-        div.appendChild(img);
-        carousel.appendChild(div);
-    }
+    const primer_pan = document.getElementById("primer-pan-img");
+    const segundo_pan = document.getElementById("segundo-pan-img");
+
+    let blob = new Blob([data[0]], { type: "image/png" });
+    let imageUrl = URL.createObjectURL(blob);
+    primer_pan.src = imageUrl;
+
+    blob = new Blob([data[1]], { type: "image/png" });
+    imageUrl = URL.createObjectURL(blob);
+    segundo_pan.src = imageUrl;
+
 });
 
 const start_server = async () => {
@@ -138,9 +132,8 @@ const start_server = async () => {
         formulario.style.display = "none";
         in_process.style.display = "inline-block";
         pan_now.style.display = "none";
-        carousel.style.display = "none";
-        texto_pan.style.display = "none";
-        boton_descargar.style.display = "none";
+        primer_pan_div.style.display = "none";
+        segundo_pan_div.style.display = "none";
         boton_apagar.style.display = "none";
         spinner_text.textContent = "Encendiendo cámara";
 
@@ -180,28 +173,28 @@ const descargar_imagen = ()=>{
     document.body.removeChild(enlace);
 }
 
-// Obtener el carrusel
-let myCarousel = new bootstrap.Carousel(document.querySelector('#carouselExampleIndicators'), {
-    interval: 3000,  // Cambia cada 3 segundos
-    wrap: true,      // Vuelve al inicio al llegar al final
-    pause: 'hover'   // Se pausa cuando el usuario pone el mouse encima
-  });
+// // Obtener el carrusel
+// let myCarousel = new bootstrap.Carousel(document.querySelector('#carouselExampleIndicators'), {
+//     interval: 3000,  // Cambia cada 3 segundos
+//     wrap: true,      // Vuelve al inicio al llegar al final
+//     pause: 'hover'   // Se pausa cuando el usuario pone el mouse encima
+//   });
   
-// Mover hacia adelante
-document.getElementById("btn-next").addEventListener("click", () => {
-    myCarousel.next(); 
-    let imagenActual = document.querySelector("#carouselExampleIndicators .carousel-item.active img");
-    let pan = document.getElementById("texto-pan");
-    pan.textContent = imagenActual.alt;
-  });
+// // Mover hacia adelante
+// document.getElementById("btn-next").addEventListener("click", () => {
+//     myCarousel.next(); 
+//     let imagenActual = document.querySelector("#carouselExampleIndicators .carousel-item.active img");
+//     let pan = document.getElementById("texto-pan");
+//     pan.textContent = imagenActual.alt;
+//   });
   
-  // Mover hacia atrás
-  document.getElementById("btn-prev").addEventListener("click", () => {
-    myCarousel.prev(); 
-    let imagenActual = document.querySelector("#carouselExampleIndicators .carousel-item.active img");
-    let pan = document.getElementById("texto-pan");
-    pan.textContent = imagenActual.alt; 
-  });
+//   // Mover hacia atrás
+//   document.getElementById("btn-prev").addEventListener("click", () => {
+//     myCarousel.prev(); 
+//     let imagenActual = document.querySelector("#carouselExampleIndicators .carousel-item.active img");
+//     let pan = document.getElementById("texto-pan");
+//     pan.textContent = imagenActual.alt; 
+//   });
 
 
 // Vincular la función al botón
