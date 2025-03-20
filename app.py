@@ -5,7 +5,6 @@ from bot_telegram import TelegramBot
 from flask_cors import CORS
 import eventlet
 import eventlet.wsgi
-from multiprocessing import Process
 import asyncio
 import threading
 import logging
@@ -71,6 +70,11 @@ def get_images():
         panes = [camara.img_now, camara.first_img]
         socketio.emit("nuevas_imagenes", panes)
 
+
+def run_flask():
+    logging.info(f"Servidor Flask iniciado en {ADDRESS}:5002")
+    eventlet.wsgi.server(eventlet.listen((ADDRESS, 5002)), app)
+
 if __name__ == "__main__":
     logging.info(f"Servidor iniciado con la direccion IP {ADDRESS}")
     logging.info(f"Puerto 5002")
@@ -78,8 +82,15 @@ if __name__ == "__main__":
     # bot_thread = threading.Thread(target=run_bot, daemon=True)
     # bot_thread.start()
 
-    bot_process = Process(target=lambda: asyncio.run(bot.main()))
-    bot_process.start()
+    # bot_process = Process(target=lambda: asyncio.run(bot.main()))
+    # bot_process.start()
 
-    eventlet.wsgi.server(eventlet.listen((ADDRESS, 5002)), app)
+     # 🔹 Crear un hilo para Flask
+    flask_thread = threading.Thread(target=run_flask, daemon=True)
+    flask_thread.start()
+
+    # 🔹 Ejecutar el bot en el hilo principal para evitar errores con asyncio
+    asyncio.run(bot.main())
+
+    # eventlet.wsgi.server(eventlet.listen((ADDRESS, 5002)), app)
     #socketio.run(app, host='192.168.127.138', debug=True, port=5002, allow_unsafe_werkzeug=True)
