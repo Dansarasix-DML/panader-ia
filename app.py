@@ -80,7 +80,9 @@ if __name__ == "__main__":
     logging.info(f"Servidor iniciado con la direccion IP {ADDRESS}")
     logging.info(f"Puerto 5002")
     logging.info(f"Los logs se registran en el fichero {os.getcwd()}/server.log")
-    bot_thread = threading.Thread(target=run_bot, daemon=True)
-    bot_thread.start()
+    # bot_thread = threading.Thread(target=run_bot, daemon=True)
+    # bot_thread.start()
+
+    asyncio.run(bot.main())
     eventlet.wsgi.server(eventlet.listen((ADDRESS, 5002)), app)
     #socketio.run(app, host='192.168.127.138', debug=True, port=5002, allow_unsafe_werkzeug=True)
