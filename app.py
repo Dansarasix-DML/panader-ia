@@ -1,9 +1,11 @@
 from flask import Flask, render_template
 from flask_socketio import SocketIO
 from photo import Capturadora
+from bot_telegram import TelegramBot
 from flask_cors import CORS
 import eventlet
 import eventlet.wsgi
+import asyncio
 import threading
 import logging
 import os
@@ -12,7 +14,7 @@ ADDRESS = "192.168.127.138"
 
 logging.basicConfig(
     filename="server.log",  # Nombre del archivo de log
-    level=logging.DEBUG,  # Nivel de logging (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+    level=logging.INFO,  # Nivel de logging (DEBUG, INFO, WARNING, ERROR, CRITICAL)
     format="%(asctime)s - %(levelname)s - %(message)s",  # Formato del mensaje
     datefmt="%Y-%m-%d %H:%M:%S",  # Formato de la fecha
 )
@@ -22,6 +24,13 @@ socketio = SocketIO(app, async_mode='eventlet')
 
 CORS(app, resources={r"/*": {"origins": f"http://{ADDRESS}:5002"}})
 camara = Capturadora()
+bot = TelegramBot(camara)
+
+def run_bot():
+    loop = asyncio.new_event_loop()  # Creamos un nuevo event loop
+    asyncio.set_event_loop(loop)     # Lo establecemos en el hilo
+    loop.run_until_complete(bot.main())  # Ejecutamos el bot
+    asyncio.run(bot.main())
 
 @app.route('/')
 
@@ -42,7 +51,7 @@ def iniciar_captura(data):
 def detener_captura():
     logging.info(f"Captura detenida, se van a resetear los valores a nulos, hasta que la camara no se apague se recomienda no iniciar una nueva captura")
     camara.capturando = False
-    camara.imgs = []
+    camara.first_img = None
     camara.img_now = None
     camara.interval = 5
     camara.tipo_pan = None
@@ -59,18 +68,19 @@ def heartbeat():
 @socketio.on("get_image_now")
 def image_now():
     if camara.capturando:
-        logging.info(f"Imagen actual solicitada")
         socketio.emit("nueva_imagen", camara.img_now)
 
 @socketio.on("get_images")
 def get_images():
     if camara.capturando:
-        logging.info(f"Lista de imagenes solicitadas")
-        socketio.emit("nuevas_imagenes", camara.imgs)
+        panes = [camara.img_now, camara.first_img]
+        socketio.emit("nuevas_imagenes", panes)
 
 if __name__ == "__main__":
     logging.info(f"Servidor iniciado con la direccion IP {ADDRESS}")
     logging.info(f"Puerto 5002")
     logging.info(f"Los logs se registran en el fichero {os.getcwd()}/server.log")
+    bot_thread = threading.Thread(target=run_bot, daemon=True)
+    bot_thread.start()
     eventlet.wsgi.server(eventlet.listen((ADDRESS, 5002)), app)
     #socketio.run(app, host='192.168.127.138', debug=True, port=5002, allow_unsafe_werkzeug=True)

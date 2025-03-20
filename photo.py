@@ -6,7 +6,7 @@ import logging
 
 logging.basicConfig(
     filename="server.log",  # Nombre del archivo de log
-    level=logging.DEBUG,  # Nivel de logging (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+    level=logging.INFO,  # Nivel de logging (DEBUG, INFO, WARNING, ERROR, CRITICAL)
     format="%(asctime)s - %(levelname)s - %(message)s",  # Formato del mensaje
     datefmt="%Y-%m-%d %H:%M:%S",  # Formato de la fecha
 )
@@ -18,7 +18,8 @@ class Capturadora:
         self.interval = interval
         self.tipo_pan = tipo_pan
         self.img_now = None
-        self.imgs = []
+        self.first_img = None
+        self.imgs = 0
         self.image_folder = "/home/raspberry/media/raspberry/D072-7D9A/capturas"
         
 
@@ -44,8 +45,10 @@ class Capturadora:
                 cv2.imwrite(image_path, frame)  # Guardar imagen
                 with open(image_path, "rb") as img_file:
                     img_bytes = img_file.read()
+                    if self.first_img is None:
+                        self.first_img = img_bytes
                     self.img_now = img_bytes
-                    self.imgs.append(img_bytes)
+                    self.imgs += 1
                     logging.info(f"Nueva imagen generada, nombre del archivo captura_{fecha}.png")
                 time.sleep(int(self.interval) * 60)  # Esperar 2 segundos antes de la siguiente captura
         finally:

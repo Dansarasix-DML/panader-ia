@@ -88,7 +88,7 @@ canvas {
     border-width: 5px;
 }
 
-#pan-actual{
+#pan-actual,#primer-pan-img,#segundo-pan-img{
     width: 100%;
     max-width: 600px;
     margin: auto;
@@ -131,4 +131,14 @@ canvas {
     width: 8vw;
     height: 8vw;
     margin-top: 8%;
+}
+
+.comparacion{
+    width: fit-content;
+    display: flex;
+    margin: 0% auto;
+}
+
+.comparacion div{
+    margin: 0% 0.5%;    
 }
