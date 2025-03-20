@@ -5,6 +5,7 @@ from bot_telegram import TelegramBot
 from flask_cors import CORS
 import eventlet
 import eventlet.wsgi
+from multiprocessing import Process
 import asyncio
 import threading
 import logging
@@ -25,12 +26,6 @@ socketio = SocketIO(app, async_mode='eventlet')
 CORS(app, resources={r"/*": {"origins": f"http://{ADDRESS}:5002"}})
 camara = Capturadora()
 bot = TelegramBot(camara)
-
-def run_bot():
-    loop = asyncio.new_event_loop()  # Creamos un nuevo event loop
-    asyncio.set_event_loop(loop)     # Lo establecemos en el hilo
-    loop.run_until_complete(bot.main())  # Ejecutamos el bot
-    asyncio.run(bot.main())
 
 @app.route('/')
 
@@ -83,6 +78,8 @@ if __name__ == "__main__":
     # bot_thread = threading.Thread(target=run_bot, daemon=True)
     # bot_thread.start()
 
-    asyncio.run(bot.main())
+    bot_process = Process(target=lambda: asyncio.run(bot.main()))
+    bot_process.start()
+
     eventlet.wsgi.server(eventlet.listen((ADDRESS, 5002)), app)
     #socketio.run(app, host='192.168.127.138', debug=True, port=5002, allow_unsafe_werkzeug=True)
