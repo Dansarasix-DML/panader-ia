@@ -11,6 +11,8 @@ pip install onnxruntime
 """
 
 import os
+import sys
+import time
 from rembg import remove
 from PIL import Image
 import io
@@ -28,6 +30,23 @@ from urllib.request import urlretrieve
 from IPython.display import YouTubeVideo, display, Image
 
 %matplotlib inline
+
+AVISOS = [50, 75, 80, 90, 100]
+ultimo_aviso_enviado = None
+
+def format_time(seconds):
+    """Convierte segundos a formato HH:MM:SS"""
+    if seconds < 60:
+        return f"{int(seconds)}s"
+    elif seconds < 3600:
+        minutes = int(seconds // 60)
+        seconds = int(seconds % 60)
+        return f"{minutes}m {seconds}s"
+    else:
+        hours = int(seconds // 3600)
+        minutes = int((seconds % 3600) // 60)
+        seconds = int(seconds % 60)
+        return f"{hours}h {minutes}m {seconds}s"
 
 def create_ouput_data(input_folder, output_folder, processed_folder):
   # Comprobamos que los ficheros existen
@@ -47,14 +66,19 @@ def create_ouput_data(input_folder, output_folder, processed_folder):
   if not os.listdir(input_folder):
     print(f"La carpeta de entrada '{input_folder}' está vacía.")
     return
+  else:
+    file_list = [f for f in os.listdir(input_folder) if f.endswith((".jpg", ".png"))]
+
+  total_files = len(file_list)
+  start_time = time.time()
 
   # Recorremos la carpeta input_folder
-  for filename in os.listdir(input_folder):
+  for i, filename in enumerate(file_list, start=1):
     if filename.endswith(".jpg") or filename.endswith(".png"):
       input_path = os.path.join(input_folder, filename)
       img = cv2.imread(input_path)
 
-      print(f"Procesando imagen: {filename}")
+      # print(f"Procesando imagen: {filename}")
       # Tratamos la imagen para quedarnos solo con el objeto (pan)
       img_remove = remove(img)
       output_gray = cv2.cvtColor(img_remove, cv2.COLOR_BGR2GRAY)
@@ -65,7 +89,23 @@ def create_ouput_data(input_folder, output_folder, processed_folder):
       output_path = os.path.join(processed_folder, f"processed_{filename}")
       cv2.imwrite(output_path, result)
 
-      print(f"Imagen procesada guardada en: {output_path}")
+      # print(f"Imagen procesada guardada en: {output_path}")
+
+      progress = (i / total_files) * 100
+      
+      # Estimación del tiempo restante
+      elapsed_time = time.time() - start_time
+      avg_time_per_image = elapsed_time / i  # Tiempo promedio por imagen
+      remaining_time = avg_time_per_image * (total_files - i)  # Tiempo estimado restante
+
+      # Formateamos el tiempo restante
+      formatted_time = format_time(remaining_time)
+
+      # Mostramos el progreso en la misma línea
+      sys.stdout.write(f"\rProgreso: {progress:.2f}% | Tiempo restante: {formatted_time}   ")
+      sys.stdout.flush()
+
+  print("\nProcesamiento completado.")
 
 def extraer_fecha(archivo):
     """Extrae la fecha y hora del nombre del archivo en formato datetime."""
