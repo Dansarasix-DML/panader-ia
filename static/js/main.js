@@ -1,4 +1,4 @@
-const url = "http://192.168.1.36:5002/"
+const url = "http://192.168.127.138:5002/"
 
 const socket = io(url);
 
