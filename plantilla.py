@@ -186,7 +186,7 @@ def calcular_volumen_entre_imagenes(input_folder, process_folder, output_folder)
     
     return volumenes, fechas
 
-def create_video_from_images(image_folder, video_name="output_video.mp4", fps=5):
+def create_video_from_images(image_folder, video_name="output_video.mp4", fps=5, seconds_delay = None):
     images = [img for img in os.listdir(image_folder) if img.endswith((".png", ".jpg", ".jpeg"))]
     images.sort()  # Sort images for correct order in video
 
@@ -202,12 +202,13 @@ def create_video_from_images(image_folder, video_name="output_video.mp4", fps=5)
     for image in images:
         frame = cv2.imread(os.path.join(image_folder, image))
         video.write(frame)
-        
-        # Agregar pausa de 2 segundos (duplicar el frame 2 * fps veces)
-        for _ in range(2 * fps):  
-            video.write(frame)
 
-    cv2.destroyAllWindows()
+        if seconds_delay is not None:
+            # Agregar pausa de 2 segundos (duplicar el frame 2 * fps veces)
+            for _ in range(seconds_delay * fps):
+                video.write(frame)
+
+    # cv2.destroyAllWindows()
     video.release()
     print(f"Video '{video_name}' creado con éxito.")
 
