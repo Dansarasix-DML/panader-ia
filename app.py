@@ -10,7 +10,7 @@ import threading
 import logging
 import os
 
-ADDRESS = "192.168.127.138"
+ADDRESS = "192.168.0.151"
 
 logging.basicConfig(
     filename="server.log",  # Nombre del archivo de log
