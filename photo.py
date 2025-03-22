@@ -19,6 +19,7 @@ class Capturadora:
         self.tipo_pan = tipo_pan
         self.img_now = None
         self.first_img = None
+        self.next_cap = None
         self.imgs = 0
         self.image_folder = "/home/raspberry/media/raspberry/D072-7D9A/capturas"
         
@@ -35,11 +36,12 @@ class Capturadora:
 
         date_now = datetime.now()
         date_str = date_now.strftime("%H:%M:%S")
-        date_next = date_str
+        date_next_str = date_str
+        self.next_cap = date_next
         
         try:
             while self.capturando:
-                if(date_str==date_next):
+                if(date_str==date_next_str):
                     if not cap.isOpened():
                         logging.info("Preparando camara para realizar una captura")
                         cap = cv2.VideoCapture(0)
@@ -62,7 +64,8 @@ class Capturadora:
                     logging.info("Camara apagada esperando a la siguiente captura")
                     # time.sleep(int(self.interval) * 60)  # Esperar 2 segundos antes de la siguiente captura
                     date_next = date_now + timedelta(minutes=self.interval)
-                    date_next = date_next.strftime("%H:%M:%S")
+                    date_next_str = date_next.strftime("%H:%M:%S")
+                    self.next_cap = date_next
                     logging.info(f"La siguiente captura se realizara en la siguiente hora {date_next}")
                 date_now = datetime.now()
                 date_str = date_now.strftime("%H:%M:%S")

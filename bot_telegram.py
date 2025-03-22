@@ -6,6 +6,7 @@ import threading
 import logging as tele
 import logging
 import io
+from datetime import datetime
 
 tele.basicConfig(
     filename="telegram_bot.log",  # Nombre del archivo de log
@@ -105,6 +106,8 @@ class TelegramBot():
         if(self.capturadora.capturando):
             msg = "Estado de la raspberry: Capturando imágenes\n" \
             f"Frecuencia de capturas: {self.capturadora.interval} minutos\n" \
+            f"Próxima captura: {self.capturadora.next_cap}\n" \
+            f"Tiempo restante para la próxima captura {self.capturadora.next_cap - datetime.now()}\n" \
             f"Tipo de pan: {self.capturadora.tipo_pan}\n" \
             f"Imagenes capturadas: {self.capturadora.imgs}\n" \
             f"Carpeta de imagenes: {self.capturadora.image_folder}\n"
