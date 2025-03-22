@@ -37,7 +37,6 @@ class Capturadora:
         date_now = datetime.now()
         date_str = date_now.strftime("%H:%M:%S")
         date_next_str = date_str
-        self.next_cap = date_next
         
         try:
             while self.capturando:
