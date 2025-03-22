@@ -35,6 +35,9 @@ class Capturadora:
         
         try:
             while self.capturando:
+                if not cap.isOpened():
+                    logging.info("Preparando camara para realizar una captura")
+                    cap = cv2.VideoCapture(0)
                 ret, frame = cap.read()
                 if not ret:
                     print("Error al capturar imagen")
@@ -50,6 +53,8 @@ class Capturadora:
                     self.img_now = img_bytes
                     self.imgs += 1
                     logging.info(f"Nueva imagen generada, nombre del archivo captura_{fecha}.png")
+                cap.release()
+                logging.info("Camara apagada esperando a la siguiente captura")
                 time.sleep(int(self.interval) * 60)  # Esperar 2 segundos antes de la siguiente captura
         finally:
             logging.info("Camara detenida, el servidor esta preparado para iniciar una nueva captura")
