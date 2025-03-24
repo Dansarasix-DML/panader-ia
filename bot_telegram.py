@@ -6,6 +6,7 @@ import threading
 import logging as tele
 import logging
 import io
+from datetime import datetime
 
 tele.basicConfig(
     filename="telegram_bot.log",  # Nombre del archivo de log
@@ -105,6 +106,8 @@ class TelegramBot():
         if(self.capturadora.capturando):
             msg = "Estado de la raspberry: Capturando imágenes\n" \
             f"Frecuencia de capturas: {self.capturadora.interval} minutos\n" \
+            f"Próxima captura: {self.capturadora.next_cap.strftime('%H:%M:%S')}\n" \
+            f"Tiempo restante para la próxima captura {(self.capturadora.next_cap - datetime.now())}\n" \
             f"Tipo de pan: {self.capturadora.tipo_pan}\n" \
             f"Imagenes capturadas: {self.capturadora.imgs}\n" \
             f"Carpeta de imagenes: {self.capturadora.image_folder}\n"
@@ -140,23 +143,3 @@ class TelegramBot():
         requests.post(self.URL_M, data={"chat_id": self.CHAT_ID, "text": "Estoy listo para ejecutar los comandos para los que me habeis preparado"})
 
         app.run_polling()
-
-
-
-
-
-
-
-
-
-# # Mensaje a enviar
-# MENSAJE = "¡Hola! Este es un aviso automático desde Google Colab 🚀"
-
-# # URL de la API de Telegram
-# URL = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-
-# # Enviar mensaje
-# response = requests.post(URL, data={"chat_id": chat_id, "text": "Esto es una prueba, no os asusteis"})
-
-# # Verificar respuesta
-# print(response.json())

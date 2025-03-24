@@ -39,6 +39,7 @@ def iniciar_captura(data):
         camara.interval = data.get("interval", 5)
         camara.tipo_pan = data.get("tipo_pan", "barra")
         logging.info(f"Captura iniciada con intervalo de {camara.interval} minutos y tipo de pan {camara.tipo_pan}")
+        # Hilo secundario que ejecuta la capturradora de fotos
         threading.Thread(target=camara.capturar_fotos_automaticas).start()
 
 @socketio.on("detener_captura")
@@ -79,18 +80,10 @@ if __name__ == "__main__":
     logging.info(f"Servidor iniciado con la direccion IP {ADDRESS}")
     logging.info(f"Puerto 5002")
     logging.info(f"Los logs se registran en el fichero {os.getcwd()}/server.log")
-    # bot_thread = threading.Thread(target=run_bot, daemon=True)
-    # bot_thread.start()
-
-    # bot_process = Process(target=lambda: asyncio.run(bot.main()))
-    # bot_process.start()
-
-     # 🔹 Crear un hilo para Flask
+    
+     # Hilo secundario que ejeucuta el servidor
     flask_thread = threading.Thread(target=run_flask, daemon=True)
     flask_thread.start()
 
-    # 🔹 Ejecutar el bot en el hilo principal para evitar errores con asyncio
+    # Hilo principal que ejecuta el bot de telegram
     asyncio.run(bot.main())
-
-    # eventlet.wsgi.server(eventlet.listen((ADDRESS, 5002)), app)
-    #socketio.run(app, host='192.168.127.138', debug=True, port=5002, allow_unsafe_werkzeug=True)
