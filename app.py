@@ -9,8 +9,9 @@ import asyncio
 import threading
 import logging
 import os
+import config.credentials
 
-ADDRESS = "192.168.127.138"
+ADDRESS = config.credentials.IP_RASPBERRY
 
 logging.basicConfig(
     filename="server.log",  # Nombre del archivo de log

@@ -1,4 +1,5 @@
-const url = "http://192.168.127.138:5002/"
+import URL from "./config/config.js";
+const url = URL;
 
 const socket = io(url);
 

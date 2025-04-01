@@ -7,6 +7,7 @@ import logging as tele
 import logging
 import io
 from datetime import datetime
+import config.credentials
 
 tele.basicConfig(
     filename="telegram_bot.log",  # Nombre del archivo de log
@@ -26,8 +27,8 @@ logging.basicConfig(
 class TelegramBot():
 
     def __init__(self,capturadora:Capturadora):
-        self.TOKEN = "7963824793:AAHR0L7xpLeq5-KLHa4dj02L-5aboC_D7OY"
-        self.CHAT_ID = "-4731656695"
+        self.TOKEN = config.credentials.TOKEN
+        self.CHAT_ID = config.credentials.CHAT_ID
         self.URL_M = f"https://api.telegram.org/bot{self.TOKEN}/sendMessage"
         self.capturadora = capturadora
 
