@@ -5,6 +5,7 @@ import numpy as np
 from datetime import datetime,timedelta
 import logging
 from transformers import pipeline
+from PIL import Image
 
 remove = pipeline("image-segmentation", model="briaai/RMBG-1.4", trust_remote_code=True)
 
@@ -37,7 +38,7 @@ class Capturadora:
         cap = cv2.VideoCapture(0)  # Iniciar la cámara
         logging.info("Camara iniciada si en la interfaz no se muestra la imagen recargue la web")
         if not cap.isOpened():
-            print("No se pudo abrir la cámara")
+            logging.error("No existe una camara conectada con la raspberry")
             return
 
         date_now = datetime.now()
@@ -52,14 +53,14 @@ class Capturadora:
                         cap = cv2.VideoCapture(0)
                     ret, frame = cap.read()
                     if not ret:
-                        print("Error al capturar imagen")
+                        logging.error("Hay un error con la camara, no se puede capturar la imagen actual")
                         break
                     fecha = datetime.now().strftime("%Y-%m-%d %H_%M_%S")
                     image_path = os.path.join(self.image_folder, f"captura_{fecha}.png")
                     frame = frame[::-1] # invertir la imagen
                     output = self.calcular_volumen(frame) # calcular el volumen de la imagen
 
-                    if output == False:
+                    if output is bool:
                         logging.warning("No se ha detectado el pan en la imagen")
                     else:
                         frame = output
@@ -89,8 +90,10 @@ class Capturadora:
         fecha_str = datetime.now().strftime("%Y-%m-%d")
         hora_str = datetime.now().strftime("%H:%M:%S")
 
+        image_pil = Image.fromarray(image)
+
         # eliminamos el fondo mediante una pipeline preentrenada
-        pan_png = remove(image, return_mask=True)
+        pan_png = remove(image_pil, return_mask=True)
 
         pan_cv = cv2.cvtColor(np.array(pan_png), cv2.COLOR_RGB2BGR)
         pan_gray = cv2.cvtColor(pan_cv, cv2.COLOR_BGR2GRAY) 
