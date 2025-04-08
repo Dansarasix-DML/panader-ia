@@ -4,7 +4,9 @@ import time
 import numpy as np
 from datetime import datetime,timedelta
 import logging
-from rembg import remove
+from transformers import pipeline
+
+remove = pipeline("image-segmentation", model="briaai/RMBG-1.4", trust_remote_code=True)
 
 logging.basicConfig(
     filename="server.log",  # Nombre del archivo de log
@@ -87,8 +89,9 @@ class Capturadora:
         fecha_str = datetime.now().strftime("%Y-%m-%d")
         hora_str = datetime.now().strftime("%H:%M:%S")
 
-        # eliminamos el fondo
-        pan_png = remove(image)
+        # eliminamos el fondo mediante una pipeline preentrenada
+        pan_png = remove(image, return_mask=True)
+
         pan_cv = cv2.cvtColor(np.array(pan_png), cv2.COLOR_RGB2BGR)
         pan_gray = cv2.cvtColor(pan_cv, cv2.COLOR_BGR2GRAY) 
         # aplicamos umbralizacion y detectamos contornos
