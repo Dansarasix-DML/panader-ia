@@ -6,6 +6,8 @@ from datetime import datetime,timedelta
 import logging
 from transformers import pipeline
 from PIL import Image
+import config.credentials
+import requests
 
 remove = pipeline("image-segmentation", model="briaai/RMBG-1.4", trust_remote_code=True)
 
@@ -18,10 +20,11 @@ logging.basicConfig(
 
 class Capturadora:
 
-    def __init__(self,capturando=False,interval=5,tipo_pan=None):
+    def __init__(self,capturando=False,interval=5,volumen=None):
         self.capturando = capturando
         self.interval = interval
-        self.tipo_pan = tipo_pan
+        self.volumen = volumen
+        self.crecimiento = None
         self.img_now = None
         self.first_img = None
         self.next_cap = None
@@ -29,6 +32,9 @@ class Capturadora:
         self.image_folder = "/home/raspberry/media/raspberry/D072-7D9A/capturas"
         self.primera_elipse = None
         self.primera_area = None
+        self.TOKEN = config.credentials.TOKEN
+        self.CHAT_ID = config.credentials.CHAT_ID
+        self.URL_M = f"https://api.telegram.org/bot{self.TOKEN}/sendMessage"
         
 
     def capturar_fotos_automaticas(self):
@@ -139,8 +145,14 @@ class Capturadora:
             # calculo del crecimiento
             crecimiento = ((volume / self.primera_area) * 100) - 100
             text_volumen = f"Volumen: {crecimiento:.2f}%"
+            self.crecimiento = round(crecimiento,2)
 
             cv2.putText(output_image, text_volumen, (20, 120), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+            if(self.crecimiento > self.volumen):
+                logging.info(f"Aplicando aviso de crecimiento")
+                requests.post(self.URL_M, data={"chat_id": self.CHAT_ID, "text": f"AVISO: El pan ha superado el porcentaje de crecimiento establecido en un {round((self.crecimiento - self.volumen),2)}%"})
+
 
 
         text_dia = f"{fecha_str}"
