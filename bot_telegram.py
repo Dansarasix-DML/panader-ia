@@ -78,7 +78,10 @@ class TelegramBot():
         self.capturadora.img_now = None
         self.capturadora.imgs = 0
         self.capturadora.interval = 5
-        self.capturadora.tipo_pan = None    
+        self.capturadora.tipo_pan = None  
+        self.capturadora.primera_elipse = None
+        self.capturadora.primera_area = None
+        self.capturadora.next_cap = None
 
     async def get_image_now(self,update:Update, context:CallbackContext):
         logging.info("Orden del bot de obtener imagen actual")
